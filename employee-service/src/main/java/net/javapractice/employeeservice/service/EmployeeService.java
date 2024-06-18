@@ -5,4 +5,5 @@ import net.javapractice.employeeservice.entity.Employee;
 
 public interface EmployeeService {
     EmployeeDto saveEmployee(EmployeeDto employeeDto);
+    EmployeeDto getEmployeeById(Long employeeId);
 }
