@@ -1,0 +1,4 @@
+# Default ignored files
+/shelf/
+/.idea/workspace.xml
+/zipkin-server-3.4.0-exec.jar
