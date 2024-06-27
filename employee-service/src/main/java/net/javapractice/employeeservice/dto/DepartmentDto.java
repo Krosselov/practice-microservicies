@@ -14,14 +14,4 @@ public class DepartmentDto {
     private String departmentName;
     private String departmentDescription;
     private String departmentCode;
-
-    @Override
-    public String toString() {
-        return "DepartmentDto{" +
-                "id=" + id +
-                ", departmentName='" + departmentName + '\'' +
-                ", departmentDescription='" + departmentDescription + '\'' +
-                ", departmentCode='" + departmentCode + '\'' +
-                '}';
-    }
 }

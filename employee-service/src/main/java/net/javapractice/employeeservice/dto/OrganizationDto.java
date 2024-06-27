@@ -17,15 +17,4 @@ public class OrganizationDto {
     private String organizationDescription;
     private String organizationCode;
     private LocalDateTime createdDate;
-
-    @Override
-    public String toString() {
-        return "OrganizationDto{" +
-                "id=" + id +
-                ", organizationName='" + organizationName + '\'' +
-                ", organizationDescription='" + organizationDescription + '\'' +
-                ", organizationCode='" + organizationCode + '\'' +
-                ", createdDate=" + createdDate +
-                '}';
-    }
 }
