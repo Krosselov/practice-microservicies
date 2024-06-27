@@ -6,7 +6,6 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.AllArgsConstructor;
 import net.javapractice.departmentservice.dto.DepartmentDto;
 import net.javapractice.departmentservice.service.DepartmentService;
-import org.hibernate.annotations.PartitionKey;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
