@@ -56,12 +56,14 @@ public class EmployeeServiceImpl implements EmployeeService {
                 .retrieve()
                 .bodyToMono(DepartmentDto.class)
                 .block();
+        LOGGER.info("departmentDto after mapping: {}", departmentDto);
 
         OrganizationDto organizationDto = webClient.get()
                 .uri("http://localhost:8083/api/organizations/" + employee.getOrganizationCode())
                 .retrieve()
                 .bodyToMono(OrganizationDto.class)
                 .block();
+        LOGGER.info("organizationDto after mapping: {}", organizationDto);
 
         EmployeeDto employeeDto = AutoEmployeeMapper.MAPPER.mapToEmployeeDto(employee);
 
