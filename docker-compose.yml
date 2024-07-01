@@ -1,0 +1,111 @@
+version: '3.8'
+
+services:
+
+  api-gateway:
+    build:
+      context: ./api-gateway
+    ports:
+      - "9191:9191"
+    networks:
+      - microservices-network
+
+  config-server:
+    build:
+      context: config-server
+    ports:
+      - "8888:8888"
+    networks:
+      - microservices-network
+
+  service-registry:
+    build:
+      context: service-registry
+    ports:
+      - "8761:8761"
+    networks:
+      - microservices-network
+
+  department-service:
+    build:
+      context: department-service
+    ports:
+      - "8080:8080"
+    networks:
+      - microservices-network
+    depends_on:
+      - department-database
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://department-database:5432/department_db
+      - SPRING_DATASOURCE_USERNAME=postgres
+      - SPRING_DATASOURCE_PASSWORD=root
+
+  employee-service:
+    build:
+      context: employee-service
+    ports:
+      - "8081:8081"
+    networks:
+      - microservices-network
+    depends_on:
+      - employee-database
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://employee-database:5432/employee_db
+      - SPRING_DATASOURCE_USERNAME=postgres
+      - SPRING_DATASOURCE_PASSWORD=root
+
+  organization-service:
+    build:
+      context: organization-service
+    ports:
+      - "8083:8083"
+    networks:
+      - microservices-network
+    depends_on:
+      - organization-database
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://organization-database:5432/organization_db
+      - SPRING_DATASOURCE_USERNAME=postgres
+      - SPRING_DATASOURCE_PASSWORD=root
+
+  department-database:
+    image: postgres:16
+    environment:
+      - POSTGRES_DB=department_db
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=root
+    volumes:
+      - department-postgres-data:/var/lib/postgresql/data
+    networks:
+      - microservices-network
+
+  employee-database:
+    image: postgres:16
+    environment:
+      - POSTGRES_DB=employee_db
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=root
+    volumes:
+      - employee-postgres-data:/var/lib/postgresql/data
+    networks:
+      - microservices-network
+
+  organization-database:
+    image: postgres:16
+    environment:
+      - POSTGRES_DB=organization_db
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=root
+    volumes:
+      - organization-postgres-data:/var/lib/postgresql/data
+    networks:
+      - microservices-network
+
+volumes:
+  department-postgres-data:
+  employee-postgres-data:
+  organization-postgres-data:
+
+networks:
+  microservices-network:
+    driver: bridge
