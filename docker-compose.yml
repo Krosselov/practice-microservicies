@@ -2,25 +2,51 @@ version: '3.8'
 
 services:
 
+  rabbitmq:
+    image: 'rabbitmq:3.13.3-management'
+    environment:
+      - "RABBITMQ_DEFAULT_PASS=guest"
+      - "RABBITMQ_DEFAULT_USER=guest"
+    volumes:
+      - ./rabbitmq:/var/lib/rabbitmq
+    ports:
+      - '5672:5672'
+      - "15672:15672"
+    networks:
+      - microservices-network
+
+  zipkin:
+    image: openzipkin/zipkin
+    ports:
+      - "9411:9411"
+    networks:
+      - microservices-network
+
   api-gateway:
     build:
       context: ./api-gateway
     ports:
       - "9191:9191"
+    depends_on:
+      - service-registry
     networks:
       - microservices-network
 
   config-server:
     build:
-      context: config-server
+      context: ./config-server
     ports:
       - "8888:8888"
+    depends_on:
+      - service-registry
     networks:
       - microservices-network
+    volumes:
+      - "Z:/properties:/properties"
 
   service-registry:
     build:
-      context: service-registry
+      context: ./service-registry
     ports:
       - "8761:8761"
     networks:
@@ -28,17 +54,26 @@ services:
 
   department-service:
     build:
-      context: department-service
+      context: ./department-service
     ports:
       - "8080:8080"
     networks:
       - microservices-network
     depends_on:
       - department-database
+      - service-registry
+      - config-server
+      - rabbitmq
+      - zipkin
     environment:
       - SPRING_DATASOURCE_URL=jdbc:postgresql://department-database:5432/department_db
       - SPRING_DATASOURCE_USERNAME=postgres
       - SPRING_DATASOURCE_PASSWORD=root
+      - SPRING_ZIPKIN_BASE_URL=http://zipkin:9411
+      - SPRING_RABBITMQ_HOST=rabbitmq
+      - SPRING_RABBITMQ_PORT=5672
+      - SPRING_RABBITMQ_USERNAME=guest
+      - SPRING_RABBITMQ_PASSWORD=guest
 
   employee-service:
     build:
@@ -49,6 +84,7 @@ services:
       - microservices-network
     depends_on:
       - employee-database
+      - service-registry
     environment:
       - SPRING_DATASOURCE_URL=jdbc:postgresql://employee-database:5432/employee_db
       - SPRING_DATASOURCE_USERNAME=postgres
@@ -63,6 +99,7 @@ services:
       - microservices-network
     depends_on:
       - organization-database
+      - service-registry
     environment:
       - SPRING_DATASOURCE_URL=jdbc:postgresql://organization-database:5432/organization_db
       - SPRING_DATASOURCE_USERNAME=postgres
@@ -74,6 +111,8 @@ services:
       - POSTGRES_DB=department_db
       - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=root
+    ports:
+      - "5432:5432"
     volumes:
       - department-postgres-data:/var/lib/postgresql/data
     networks:
@@ -85,6 +124,8 @@ services:
       - POSTGRES_DB=employee_db
       - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=root
+    ports:
+      - "5433:5432"
     volumes:
       - employee-postgres-data:/var/lib/postgresql/data
     networks:
@@ -96,6 +137,8 @@ services:
       - POSTGRES_DB=organization_db
       - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=root
+    ports:
+      - "5434:5432"
     volumes:
       - organization-postgres-data:/var/lib/postgresql/data
     networks:
