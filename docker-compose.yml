@@ -3,19 +3,21 @@ version: '3.8'
 services:
 
   rabbitmq:
-    image: 'rabbitmq:3.13.3-management'
+    container_name: rabbitmq
+    image: "rabbitmq:3.13.3-management"
     environment:
       - "RABBITMQ_DEFAULT_PASS=guest"
       - "RABBITMQ_DEFAULT_USER=guest"
     volumes:
       - ./rabbitmq:/var/lib/rabbitmq
     ports:
-      - '5672:5672'
+      - "5672:5672"
       - "15672:15672"
     networks:
       - microservices-network
 
   zipkin:
+    container_name: zipkin
     image: openzipkin/zipkin
     ports:
       - "9411:9411"
@@ -41,8 +43,8 @@ services:
       - service-registry
     networks:
       - microservices-network
-    volumes:
-      - "Z:/properties:/properties"
+#    volumes:
+#      - "Z:/properties:/properties"
 
   service-registry:
     build:
@@ -64,12 +66,12 @@ services:
       - service-registry
       - config-server
       - rabbitmq
-      - zipkin
     environment:
       - SPRING_DATASOURCE_URL=jdbc:postgresql://department-database:5432/department_db
       - SPRING_DATASOURCE_USERNAME=postgres
       - SPRING_DATASOURCE_PASSWORD=root
       - SPRING_ZIPKIN_BASE_URL=http://zipkin:9411
+      - MANAGEMENT_ZIPKIN_TRACING_ENDPOINT=http://zipkin:9411/api/v2/spans
       - SPRING_RABBITMQ_HOST=rabbitmq
       - SPRING_RABBITMQ_PORT=5672
       - SPRING_RABBITMQ_USERNAME=guest
@@ -85,10 +87,17 @@ services:
     depends_on:
       - employee-database
       - service-registry
+      - config-server
     environment:
       - SPRING_DATASOURCE_URL=jdbc:postgresql://employee-database:5432/employee_db
       - SPRING_DATASOURCE_USERNAME=postgres
       - SPRING_DATASOURCE_PASSWORD=root
+      - SPRING_ZIPKIN_BASE_URL=http://zipkin:9411
+      - MANAGEMENT_ZIPKIN_TRACING_ENDPOINT=http://zipkin:9411/api/v2/spans
+      - SPRING_RABBITMQ_HOST=rabbitmq
+      - SPRING_RABBITMQ_PORT=5672
+      - SPRING_RABBITMQ_USERNAME=guest
+      - SPRING_RABBITMQ_PASSWORD=guest
 
   organization-service:
     build:
@@ -100,10 +109,17 @@ services:
     depends_on:
       - organization-database
       - service-registry
+      - config-server
     environment:
       - SPRING_DATASOURCE_URL=jdbc:postgresql://organization-database:5432/organization_db
       - SPRING_DATASOURCE_USERNAME=postgres
       - SPRING_DATASOURCE_PASSWORD=root
+      - SPRING_ZIPKIN_BASE_URL=http://zipkin:9411
+      - MANAGEMENT_ZIPKIN_TRACING_ENDPOINT=http://zipkin:9411/api/v2/spans
+      - SPRING_RABBITMQ_HOST=rabbitmq
+      - SPRING_RABBITMQ_PORT=5672
+      - SPRING_RABBITMQ_USERNAME=guest
+      - SPRING_RABBITMQ_PASSWORD=guest
 
   department-database:
     image: postgres:16
